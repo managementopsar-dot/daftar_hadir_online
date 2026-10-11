@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B2559">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Presensi Rapat Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B2559; --navy2:#2C3B91; --navy3:#0F1638;
+  --orange:#F26B1D; --orange2:#FF8A3D; --red:#E3262E;
+  --bg:#F3F5FA; --card:#FFFFFF; --ink:#141A33; --muted:#69708F; --line:#E2E6F0; --soft:#EEF1F8;
+  --ok:#12A150; --okbg:#E7F7EE; --bad:#D92D20; --badbg:#FDECEA; --warn:#B54708; --warnbg:#FEF4E6;
+  --r:16px; --r-sm:10px;
+  --shadow:0 1px 2px rgba(20,26,51,.06),0 8px 24px rgba(20,26,51,.06);
+  --shadow-lg:0 20px 60px rgba(15,22,56,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--navy2)}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.92em;letter-spacing:.02em}
+
+/* ---------- Topbar ---------- */
+.topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);min-width:0}
+.brand img{height:30px;width:auto}
+.brand b{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.brand small{display:block;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 10px;border-radius:99px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--okbg);color:var(--ok)} .pill.warn{background:var(--warnbg);color:var(--warn)} .pill.bad{background:var(--badbg);color:var(--bad)}
+@media (max-width:560px){.brand div{display:none}.hide-sm{display:none}}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card-pad{padding:20px}
+h1,h2,h3{margin:0;line-height:1.2;letter-spacing:-.01em}
+h1{font-size:clamp(26px,4.5vw,40px);font-weight:800}
+h2{font-size:20px;font-weight:800}
+h3{font-size:16px;font-weight:700}
+.muted{color:var(--muted)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid{display:grid;gap:16px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;margin-bottom:14px;background:none;border:0;cursor:pointer;padding:0}
+.back:hover{color:var(--ink)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:12px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer;transition:transform .08s,background .15s,box-shadow .15s;text-decoration:none;white-space:nowrap;min-height:42px}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:var(--navy);color:#fff;box-shadow:0 4px 14px rgba(27,37,89,.25)}
+.btn-primary:hover{background:var(--navy2)}
+.btn-accent{background:var(--orange);color:#fff;box-shadow:0 4px 14px rgba(242,107,29,.3)}
+.btn-accent:hover{background:var(--orange2)}
+.btn-ghost{background:#fff;border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--soft)}
+.btn-danger{background:var(--bad);color:#fff}
+.btn-danger-ghost{background:#fff;border-color:#F6C9C4;color:var(--bad)}
+.btn-danger-ghost:hover{background:var(--badbg)}
+.btn-sm{padding:6px 10px;min-height:34px;font-size:13px;border-radius:9px}
+.btn-icon{width:36px;min-height:36px;padding:0;border-radius:10px}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* ---------- Forms ---------- */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:700;color:#3A4166}
+.field .hint{font-size:12px;color:var(--muted)}
+.input,select.input,textarea.input{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:11px 13px;outline:none;transition:border .15s,box-shadow .15s;min-height:44px}
+.input:focus{border-color:var(--navy2);box-shadow:0 0 0 4px rgba(44,59,145,.12)}
+.input-group{display:flex;gap:8px}
+.input-group .input{flex:1;min-width:0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:600px){.grid-2{grid-template-columns:1fr}}
+.switch{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;font-size:14px}
+.switch input{width:20px;height:20px;accent-color:var(--navy);flex:none}
+
+/* ---------- Home ---------- */
+.hero{position:relative;overflow:hidden;border-radius:24px;background:radial-gradient(1200px 400px at 110% -20%,rgba(242,107,29,.35),transparent 60%),linear-gradient(135deg,var(--navy3),var(--navy) 55%,var(--navy2));color:#fff;padding:36px 28px 120px}
+.hero::after{content:"";position:absolute;right:-60px;bottom:40px;width:520px;height:16px;background:linear-gradient(90deg,transparent,var(--orange));transform:rotate(-12deg);border-radius:99px;opacity:.9}
+.hero::before{content:"";position:absolute;right:-60px;bottom:70px;width:360px;height:6px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5));transform:rotate(-12deg);border-radius:99px}
+.hero .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:99px;margin-bottom:16px}
+.hero p{max-width:620px;color:rgba(255,255,255,.8);font-size:16px;margin:12px 0 0;position:relative;z-index:1}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:-88px 16px 0;position:relative;z-index:2}
+@media (max-width:720px){.choices{grid-template-columns:1fr;margin:-88px 8px 0}}
+.choice{display:flex;flex-direction:column;gap:12px;text-align:left;padding:24px;border-radius:20px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none;color:var(--ink)}
+.choice:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(20,26,51,.12)}
+.choice .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center}
+.choice .ic svg{width:28px;height:28px}
+.choice.p .ic{background:#FFF0E6;color:var(--orange)}
+.choice.a .ic{background:#E9ECFA;color:var(--navy2)}
+.choice h3{font-size:19px}
+.choice .go{margin-top:auto;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.choice.p .go{color:var(--orange)} .choice.a .go{color:var(--navy2)}
+.caps{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.capnote{margin-top:14px;font-size:13px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px;padding:12px 14px}
+
+/* ---------- Event list ---------- */
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:16px}
+.ev{display:flex;gap:16px;padding:18px;cursor:pointer;transition:transform .12s,box-shadow .12s;text-align:left;width:100%;font:inherit}
+.ev:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(20,26,51,.1)}
+.datebox{flex:none;width:64px;border-radius:14px;background:var(--navy);color:#fff;text-align:center;padding:8px 4px;line-height:1.1}
+.datebox .d{font-size:26px;font-weight:800}
+.datebox .m{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.datebox.today{background:var(--orange)}
+.ev h3{font-size:16px;margin-bottom:4px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--soft);color:var(--muted)}
+.badge.ok{background:var(--okbg);color:var(--ok)} .badge.org{background:#FFF0E6;color:#C2410C} .badge.gray{background:#EEF0F5;color:#5B6280}
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty svg{width:56px;height:56px;opacity:.4;margin-bottom:8px}
+
+/* ---------- Kiosk ---------- */
+.kiosk{display:grid;grid-template-columns:380px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:980px){.kiosk{grid-template-columns:minmax(0,1fr)}}
+.meta-card{background:linear-gradient(135deg,var(--navy3),var(--navy));color:#fff;border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
+.meta-card::after{content:"";position:absolute;right:-40px;bottom:16px;width:240px;height:8px;background:var(--orange);transform:rotate(-12deg);border-radius:9px}
+.meta-card dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:14px 0 0;font-size:14px}
+.meta-card dt{opacity:.7;font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+.meta-card dd{margin:0;font-weight:700}
+.counter{display:flex;align-items:baseline;gap:8px;margin-top:16px;position:relative;z-index:1}
+.counter b{font-size:40px;font-weight:800;line-height:1}
+.scan{padding:28px 20px;text-align:center}
+.radar{position:relative;width:180px;height:180px;margin:6px auto 18px;display:grid;place-items:center}
+.radar .core{width:104px;height:104px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#FF9A55);display:grid;place-items:center;color:#fff;box-shadow:0 12px 30px rgba(242,107,29,.4);z-index:2;position:relative}
+.radar .core svg{width:52px;height:52px}
+.radar .ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(242,107,29,.45);animation:ping 2.4s cubic-bezier(.2,.6,.3,1) infinite}
+.radar .ring:nth-child(2){animation-delay:.8s}.radar .ring:nth-child(3){animation-delay:1.6s}
+.radar.busy .core{animation:pulse .8s ease-in-out infinite alternate}
+@keyframes ping{0%{transform:scale(.55);opacity:1}100%{transform:scale(1.15);opacity:0}}
+@keyframes pulse{to{transform:scale(1.06)}}
+.scan h2{font-size:22px}
+.readers{display:flex;flex-direction:column;gap:8px;margin-top:18px;text-align:left}
+.reader{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:13px}
+.reader .ri{width:30px;height:30px;border-radius:9px;background:#fff;display:grid;place-items:center;flex:none;color:var(--navy2)}
+.reader .ri svg{width:17px;height:17px}
+.reader b{display:block;font-size:13px}
+.reader span{color:var(--muted);font-size:12px}
+.reader .btn{margin-left:auto}
+.reader.on{background:var(--okbg)} .reader.on .ri{color:var(--ok)}
+.reader.off .ri{color:#9AA1BC}
+
+/* ---------- Table ---------- */
+.tbl-wrap{overflow:auto;border-radius:0 0 var(--r) var(--r)}
+table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+.tbl th{position:sticky;top:0;background:#F7F8FC;text-align:left;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:12px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.flash td{animation:flash 2.4s ease-out}
+@keyframes flash{0%{background:#FFE7D6}100%{background:transparent}}
+.tbl .no{width:44px;text-align:center;font-weight:800;color:var(--muted)}
+.tbl .acts{white-space:nowrap;text-align:right}
+.qr{display:inline-flex;align-items:center;gap:8px;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.qr svg{width:46px;height:46px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:3px;flex:none}
+.qr small{font-size:11px;color:var(--muted);line-height:1.25}
+.name-cell b{display:block}
+.name-cell small{color:var(--muted)}
+@media (max-width:760px){
+  table.tbl.stack thead{display:none}
+  table.tbl.stack,table.tbl.stack tbody,table.tbl.stack tr,table.tbl.stack td{display:block;width:100%}
+  table.tbl.stack tr{padding:12px 14px;border-bottom:1px solid var(--line);position:relative}
+  table.tbl.stack td{border:0;padding:3px 0;display:flex;gap:10px;text-align:left}
+  table.tbl.stack td::before{content:attr(data-l);flex:none;width:96px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+  table.tbl.stack td.no{position:absolute;right:12px;top:12px;width:auto;display:block}
+  table.tbl.stack td.no::before{display:none}
+  table.tbl.stack td.acts{justify-content:flex-start;padding-top:8px}
+  table.tbl.stack td.acts::before{display:none}
+}
+
+/* ---------- Admin ---------- */
+.tabs{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:5px;overflow-x:auto;margin-bottom:18px;box-shadow:var(--shadow)}
+.tab{flex:1;min-width:max-content;border:0;background:none;padding:10px 16px;border-radius:10px;font-weight:700;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px}
+.tab svg{width:18px;height:18px}
+.tab.on{background:var(--navy);color:#fff}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.search{position:relative;flex:1;min-width:200px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
+.search .input{padding-left:38px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+.stat{padding:16px 18px}
+.stat small{color:var(--muted);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.stat b{display:block;font-size:28px;font-weight:800;margin-top:2px}
+
+/* ---------- Login ---------- */
+.auth{max-width:420px;margin:20px auto}
+.auth .card{padding:28px}
+.auth .logo{height:44px;margin-bottom:16px}
+
+/* ---------- Modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(15,22,56,.5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .15s}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;box-shadow:var(--shadow-lg);animation:pop .18s cubic-bezier(.2,.8,.3,1.2)}
+.modal.sm{max-width:420px}
+.modal-h{padding:20px 22px 0;display:flex;gap:14px;align-items:center}
+.modal-h .mi{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
+.modal-h .mi svg{width:24px;height:24px}
+.mi.info{background:#E9ECFA;color:var(--navy2)} .mi.danger{background:var(--badbg);color:var(--bad)} .mi.ok{background:var(--okbg);color:var(--ok)} .mi.warn{background:var(--warnbg);color:var(--warn)}
+.modal-b{padding:16px 22px}
+.modal-f{padding:0 22px 20px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.modal-f .btn{min-width:110px}
+@media (max-width:480px){.modal-f .btn{flex:1}}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{from{transform:scale(.94);opacity:0}}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:14px;background:var(--soft);border-radius:12px;padding:14px;margin:0}
+.kv dt{color:var(--muted);font-weight:600;font-size:13px}
+.kv dd{margin:0;font-weight:700;word-break:break-word}
+.big-qr{display:flex;justify-content:center;margin:6px 0 12px}
+.big-qr svg{width:200px;height:200px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.countdown{height:4px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:12px}
+.countdown i{display:block;height:100%;background:var(--orange);animation:cd linear forwards}
+@keyframes cd{from{width:100%}to{width:0}}
+
+/* ---------- Toast ---------- */
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:200;display:flex;flex-direction:column;gap:8px;width:min(92vw,440px);pointer-events:none}
+.toast{background:var(--navy3);color:#fff;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow-lg);font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center;animation:pop .2s}
+.toast.ok{background:#0E7A3E}.toast.bad{background:#B42318}.toast.warn{background:#93370D}
+.toast svg{width:20px;height:20px;flex:none}
+
+.spinner{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.spinner.dark{border-color:rgba(27,37,89,.15);border-top-color:var(--navy)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;justify-content:center;padding:40px}
+.demo-bar{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;border-radius:12px;padding:10px 14px;font-size:13px;margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.demo-bar select{max-width:100%}
+.verify{max-width:520px;margin:10px auto}
+.vstat{display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 20px 8px;text-align:center}
+.vstat .vi{width:72px;height:72px;border-radius:50%;display:grid;place-items:center}
+.vstat .vi svg{width:40px;height:40px}
+.foot{text-align:center;color:var(--muted);font-size:12px;padding:20px 16px 30px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="#/" id="brandLink"><img id="brandLogo" alt="Logo"><div><small>Presensi Rapat</small><b>Daftar Hadir Digital</b></div></a>
+  <div class="spacer"></div>
+  <span class="pill" id="modePill"><span class="dot"></span><span>…</span></span>
+  <span id="topActions"></span>
+</div></header>
+<main class="wrap" id="app"><div class="loading"><div class="spinner dark"></div></div></main>
+<div class="foot" id="foot"></div>
+<div id="modals"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script>
+/* =====================================================================
+ *  KONFIGURASI
+ *  API_URL : isi dengan URL Web App Apps Script (…/exec) bila halaman ini
+ *            di-hosting sendiri (GitHub Pages / Netlify / server kantor)
+ *            — WAJIB agar NFC di HP Android berfungsi.
+ *            Kosong => bila dibuka dari URL Apps Script otomatis memakai
+ *            google.script.run; bila dibuka di luar => MODE DEMO (data
+ *            tersimpan di browser ini saja).
+ * ===================================================================== */
+const CONFIG = {
+  API_URL: 'https://script.google.com/macros/s/AKfycbwvJn6eaBR5TtQylPf_HyXPJPdmgNl73CO9E2rbVO7dOluGT4-rNGcM6H7kiXW9eVjgAA/exec',
+  KIOSK_REFRESH_MS: 15000,
+  CONFIRM_TIMEOUT_S: 20
+};
+const DEFAULT_LOGO = 'data:image/png;base64,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';
+
+/* =====================================================================
+ *  UTIL
+ * ===================================================================== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const pad = n => String(n).padStart(2, '0');
+const todayYmd = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const nowIso = () => { const d = new Date(); return `${todayYmd()}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
+const parseYmd = s => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, m - 1, d); };
+const hariDari = s => HARI[parseYmd(s).getDay()];
+const fmtTgl = s => { if (!s) return '-'; const d = parseYmd(s); return isNaN(d) ? s : `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
+const fmtJam = iso => String(iso || '').substr(11, 5);
+const store = {
+  get(k, def) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  sget(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+  sset(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch (e) { } }
+};
+const uid8 = p => p + Array.from(crypto.getRandomValues(new Uint8Array(5)), b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+const maskPhone = p => { p = String(p || ''); return p.length > 6 ? p.substr(0, 4) + '****' + p.substr(-3) : p; };
+const maskEmail = m => { m = String(m || ''); const i = m.indexOf('@'); return i < 1 ? m : m.substr(0, Math.min(2, i)) + '***' + m.substr(i); };
+const normUid = r => String(r || '').trim().toUpperCase().replace(/[\s:\-]/g, '');
+const revBytes = h => (h.match(/../g) || []).reverse().join('');
+/* Reader USB sering mengirim UID desimal 10 digit, NFC HP mengirim hex "04:A2:…" — samakan semuanya */
+function uidCandidates(raw) {
+  const s = normUid(raw); if (!s) return [];
+  const out = new Set(); const add = v => { if (v) { out.add(v); const z = v.replace(/^0+/, ''); if (z) out.add(z); } };
+  add(s);
+  try {
+    if (/^\d+$/.test(s)) { let h = BigInt(s).toString(16).toUpperCase(); if (h.length % 2) h = '0' + h; while (h.length < 8) h = '00' + h; add(h); add(revBytes(h)); }
+    if (/^[0-9A-F]+$/.test(s) && s.length % 2 === 0) { const rv = revBytes(s); add(rv); add(BigInt('0x' + s).toString()); add(BigInt('0x' + rv).toString()); }
+  } catch (e) { }
+  return [...out];
+}
+async function sha256Hex(str) {
+  if (crypto.subtle) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+  let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16).padStart(8, '0').repeat(8);
+}
+async function hmacHex(secret, msg) {
+  if (crypto.subtle) {
+    const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const s = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(msg)); return [...new Uint8Array(s)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+  return sha256Hex(secret + '|' + msg);
+}
+
+/* =====================================================================
+ *  ICONS
+ * ===================================================================== */
+const I = {
+  nfc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/></svg>',
+  card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M13 10h5M13 14h3"/></svg>',
+  usb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="9" rx="1"/><path d="M5 11h14v6a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5z"/><path d="M10 5v2M14 5v2"/></svg>',
+  kbd: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+  cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+  back: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+  upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
+  monitor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+};
+const icon = (name, size) => I[name].replace('<svg', `<svg width="${size}" height="${size}" style="width:${size}px;height:${size}px;vertical-align:-2px"`);
+
+/* =====================================================================
+ *  MODE DEMO (data di browser) — logika sama dengan Code.gs
+ * ===================================================================== */
+const LocalAPI = (() => {
+  const KEY = 'presensi_demo_v1';
+  let db = null;
+  const save = () => store.set(KEY, db);
+  async function load() {
+    if (db) return db;
+    db = store.get(KEY, null);
+    if (!db) {
+      const salt = uid8('S'), t = todayYmd();
+      db = {
+        admin: { user: 'admin', salt, hash: await sha256Hex(salt + 'admin123') },
+        secret: uid8('K') + uid8('K'),
+        tokens: {},
+        settings: { judul: 'FORM DAFTAR HADIR RAPAT INTERNAL', kodeForm: 'FR.KCJ.045', noTerbit: '1', noRevisi: '-', logo: '', izinManual: 'true', verifyUrl: '' },
+        events: [{ id: 'AGDEMO0001', tanggal: t, hari: hariDari(t), acara: 'Rapat Koordinasi Operasional (contoh)', status: 'aktif', createdAt: nowIso(), updatedAt: nowIso() }],
+        employees: [
+          ['04A1B2C3D4E580', 'Andi Pratama', '41234', 'Manager Operasi', '081234567801', 'andi.pratama@contoh.co.id'],
+          ['04B2C3D4E5F681', 'Siti Rahmawati', '41235', 'Asisten Manager SDM', '081234567802', 'siti.rahma@contoh.co.id'],
+          ['3A5F2C1B', 'Budi Santoso', '41236', 'Supervisor Stasiun', '081234567803', 'budi.santoso@contoh.co.id'],
+          ['0987654321', 'Dewi Lestari', '41237', 'Staf Keuangan', '081234567804', 'dewi.lestari@contoh.co.id'],
+          ['04C3D4E5F60782', 'Rizky Hidayat', '41238', 'Analis IT', '081234567805', 'rizky.h@contoh.co.id'],
+          ['5B6C7D8E', 'Maya Anggraini', '41239', 'Staf Pengadaan', '081234567806', 'maya.a@contoh.co.id']
+        ].map((r, i) => ({ id: 'PGDEMO000' + i, uid: r[0], nama: r[1], nipp: r[2], jabatan: r[3], hp: r[4], email: r[5], createdAt: nowIso(), updatedAt: nowIso() })),
+        attendance: []
+      };
+      save();
+    }
+    return db;
+  }
+  const req = (d, f) => f.forEach(k => { if (d[k] == null || String(d[k]).trim() === '') throw new Error(`Field "${k}" wajib diisi`); });
+  const pub = e => ({ id: e.id, nama: e.nama, nipp: e.nipp, jabatan: e.jabatan, hp: maskPhone(e.hp), email: maskEmail(e.email) });
+  const findUid = raw => { const set = new Set(uidCandidates(raw)); return db.employees.find(e => { const n = normUid(e.uid); return n && (set.has(n) || set.has(n.replace(/^0+/, ''))); }) || null; };
+  const sign = r => hmacHex(db.secret, [r.id, r.eventId, r.nipp, r.waktu].join('|')).then(h => h.substr(0, 16));
+  async function checkIn(eventId, emp, metode, isAdmin) {
+    const ev = db.events.find(e => e.id === eventId); if (!ev) throw new Error('Agenda tidak ditemukan');
+    if (ev.status !== 'aktif' && !isAdmin) throw new Error('Presensi untuk agenda ini sudah ditutup');
+    const hadir = db.attendance.filter(a => a.eventId === eventId);
+    const dup = hadir.find(a => a.employeeId === emp.id || a.nipp === emp.nipp);
+    if (dup) throw new Error(`${emp.nama} sudah presensi pukul ${fmtJam(dup.waktu)}`);
+    const rec = { id: uid8('HD'), eventId, employeeId: emp.id, uid: emp.uid, nama: emp.nama, nipp: emp.nipp, jabatan: emp.jabatan, hp: emp.hp, email: emp.email, waktu: nowIso(), metode };
+    rec.sig = await sign(rec); db.attendance.push(rec); save();
+    return { ...pub(rec), id: rec.id, sig: rec.sig, waktu: rec.waktu, no: hadir.length + 1 };
+  }
+  const A = {
+    ping: () => ({ time: nowIso() }),
+    async login(d) {
+      const ok = String(d.username || '').toLowerCase() === db.admin.user.toLowerCase() && await sha256Hex(db.admin.salt + (d.password || '')) === db.admin.hash;
+      if (!ok) throw new Error('Username atau password salah');
+      const token = uid8('T') + uid8('T'); db.tokens[token] = Date.now() + 6 * 3600e3; save();
+      return { token, user: db.admin.user, defaultPassword: d.password === 'admin123' };
+    },
+    logout(d, a, token) { delete db.tokens[token]; save(); return true; },
+    async changePassword(d) {
+      if (await sha256Hex(db.admin.salt + (d.oldPassword || '')) !== db.admin.hash) throw new Error('Password lama salah');
+      if (String(d.newPassword || '').length < 8) throw new Error('Password baru minimal 8 karakter');
+      const salt = uid8('S'); db.admin = { user: d.newUsername ? String(d.newUsername).trim() : db.admin.user, salt, hash: await sha256Hex(salt + d.newPassword) }; save(); return true;
+    },
+    getSettings: () => ({ ...db.settings, appUrl: '' }),
+    saveSettings(d) { ['judul', 'kodeForm', 'noTerbit', 'noRevisi', 'logo', 'izinManual', 'verifyUrl'].forEach(k => { if (d[k] !== undefined) db.settings[k] = String(d[k]); }); save(); return A.getSettings(); },
+    listEvents(d, isAdmin) {
+      let rows = db.events.map(e => ({ ...e, jumlahHadir: db.attendance.filter(a => a.eventId === e.id).length }));
+      if (!isAdmin || !d.all) rows = rows.filter(r => r.status === 'aktif');
+      return rows.sort((a, b) => a.tanggal < b.tanggal ? 1 : a.tanggal > b.tanggal ? -1 : 0);
+    },
+    saveEvent(d) {
+      req(d, ['tanggal', 'acara']);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(d.tanggal)) throw new Error('Format tanggal harus YYYY-MM-DD');
+      const rec = { id: d.id || uid8('AG'), tanggal: d.tanggal, hari: d.hari || hariDari(d.tanggal), acara: String(d.acara).trim(), status: d.status === 'selesai' ? 'selesai' : 'aktif', updatedAt: nowIso() };
+      const i = db.events.findIndex(e => e.id === rec.id);
+      if (i < 0) db.events.push({ ...rec, createdAt: nowIso() }); else db.events[i] = { ...db.events[i], ...rec };
+      save(); return rec;
+    },
+    deleteEvent(d) { req(d, ['id']); db.attendance = db.attendance.filter(a => a.eventId !== d.id); db.events = db.events.filter(e => e.id !== d.id); save(); return true; },
+    listEmployees: () => [...db.employees].sort((a, b) => a.nama.localeCompare(b.nama)),
+    saveEmployee(d) {
+      req(d, ['uid', 'nama', 'nipp']);
+      const uid = normUid(d.uid), nipp = String(d.nipp).trim(), mine = new Set(uidCandidates(uid));
+      db.employees.forEach(e => {
+        if (e.id === d.id) return; const n = normUid(e.uid);
+        if (mine.has(n) || mine.has(n.replace(/^0+/, ''))) throw new Error('UID kartu sudah dipakai oleh ' + e.nama);
+        if (String(e.nipp).trim() === nipp) throw new Error('NIPP/NIK sudah terdaftar atas nama ' + e.nama);
+      });
+      const rec = { id: d.id || uid8('PG'), uid, nama: String(d.nama).trim(), nipp, jabatan: String(d.jabatan || '').trim(), hp: String(d.hp || '').trim(), email: String(d.email || '').trim(), updatedAt: nowIso() };
+      const i = db.employees.findIndex(e => e.id === rec.id);
+      if (i < 0) db.employees.push({ ...rec, createdAt: nowIso() }); else db.employees[i] = { ...db.employees[i], ...rec };
+      save(); return rec;
+    },
+    deleteEmployee(d) { req(d, ['id']); db.employees = db.employees.filter(e => e.id !== d.id); save(); return true; },
+    importEmployees(d) {
+      const res = { added: 0, updated: 0, errors: [] };
+      (d.rows || []).forEach((r, i) => { try { const ex = db.employees.find(e => String(e.nipp).trim() === String(r.nipp || '').trim()); r.id = ex ? ex.id : ''; A.saveEmployee(r); ex ? res.updated++ : res.added++; } catch (e) { res.errors.push(`Baris ${i + 2}: ${e.message}`); } });
+      return res;
+    },
+    lookupCard(d) { const e = findUid(d.uid); if (!e) throw new Error('Kartu tidak terdaftar di sistem. Hubungi admin.'); return pub(e); },
+    checkIn(d) { req(d, ['eventId', 'uid']); const e = findUid(d.uid); if (!e) throw new Error('Kartu tidak terdaftar di sistem. Hubungi admin.'); return checkIn(d.eventId, e, d.metode || 'Kartu', false); },
+    checkInManual(d, isAdmin) {
+      req(d, ['eventId']);
+      if (!isAdmin && db.settings.izinManual !== 'true') throw new Error('Input manual tidak diizinkan');
+      const e = isAdmin && d.employeeId ? db.employees.find(x => x.id === d.employeeId) : db.employees.find(x => String(x.nipp).trim() === String(d.nipp || '').trim());
+      if (!e) throw new Error('Pegawai tidak ditemukan');
+      return checkIn(d.eventId, e, isAdmin ? 'Manual (admin)' : 'Manual (NIPP)', isAdmin);
+    },
+    listAttendance(d, isAdmin) {
+      req(d, ['eventId']);
+      return db.attendance.filter(a => a.eventId === d.eventId).sort((a, b) => a.waktu < b.waktu ? -1 : a.waktu > b.waktu ? 1 : 0)
+        .map((r, i) => ({ no: i + 1, id: r.id, nama: r.nama, nipp: r.nipp, jabatan: r.jabatan, hp: isAdmin ? r.hp : maskPhone(r.hp), email: isAdmin ? r.email : maskEmail(r.email), waktu: r.waktu, metode: r.metode, sig: r.sig }));
+    },
+    deleteAttendance(d) { req(d, ['id']); db.attendance = db.attendance.filter(a => a.id !== d.id); save(); return true; },
+    async verify(d) {
+      const r = db.attendance.find(a => a.id === d.id); if (!r) return { valid: false, reason: 'Data presensi tidak ditemukan / sudah dihapus' };
+      const valid = r.sig === String(d.s || '') && r.sig === await sign(r); const ev = db.events.find(e => e.id === r.eventId) || {};
+      return { valid, reason: valid ? '' : 'Tanda tangan tidak cocok', nama: r.nama, nipp: r.nipp, jabatan: r.jabatan, waktu: r.waktu, acara: ev.acara || '-', tanggal: ev.tanggal || '', hari: ev.hari || '' };
+    }
+  };
+  const PUBLIC = new Set(['ping', 'login', 'getSettings', 'listEvents', 'lookupCard', 'checkIn', 'checkInManual', 'listAttendance', 'verify']);
+  return {
+    async handle(action, data, token) {
+      await load();
+      try {
+        const isAdmin = !!(token && db.tokens[token] && db.tokens[token] > Date.now());
+        if (!Object.prototype.hasOwnProperty.call(A, action)) throw new Error('Aksi tidak dikenal');
+        if (!PUBLIC.has(action) && !isAdmin) return { ok: false, error: 'Sesi admin berakhir, silakan login ulang', auth: false };
+        return { ok: true, data: JSON.parse(JSON.stringify(await A[action](data || {}, isAdmin, token))) };
+      } catch (e) { return { ok: false, error: e.message }; }
+    },
+    async demoEmployees() { await load(); return db.employees; },
+    reset() { try { localStorage.removeItem(KEY); } catch (e) { } db = null; }
+  };
+})();
+
+/* =====================================================================
+ *  API WRAPPER
+ * ===================================================================== */
+const S = { token: store.sget('presensi_token'), user: store.sget('presensi_user'), settings: null, appUrl: '' };
+const apiOverride = new URLSearchParams(location.search).get('api');
+if (apiOverride) store.set('presensi_api_url', apiOverride);
+const API_URL = CONFIG.API_URL || store.get('presensi_api_url', '');
+const MODE = (window.google && google.script && google.script.run) ? 'gas' : (API_URL ? 'remote' : 'demo');
+
+async function api(action, data = {}) {
+  let res;
+  try {
+    if (MODE === 'gas') {
+      res = await new Promise((ok, ko) => google.script.run.withSuccessHandler(ok).withFailureHandler(ko).api(action, data, S.token || ''));
+    } else if (MODE === 'remote') {
+      // text/plain = "simple request" sehingga tidak memicu preflight CORS yang tidak didukung Apps Script
+      const r = await fetch(API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, data, token: S.token || '' }) });
+      res = await r.json();
+    } else {
+      res = await LocalAPI.handle(action, data, S.token);
+    }
+  } catch (e) {
+    throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet. (' + (e.message || e) + ')');
+  }
+  if (!res || !res.ok) {
+    if (res && res.auth === false) { setSession(null, null); toast('Sesi admin berakhir, silakan login ulang', 'warn'); go('#/login'); }
+    throw new Error((res && res.error) || 'Terjadi kesalahan');
+  }
+  return res.data;
+}
+function setSession(t, u) { S.token = t; S.user = u; store.sset('presensi_token', t); store.sset('presensi_user', u); renderTop(); }
+
+/* =====================================================================
+ *  READER: Web NFC (Chrome Android) + Reader RFID/NFC USB/Bluetooth (mode keyboard/HID)
+ * ===================================================================== */
+const Reader = {
+  handler: null, last: '', lastT: 0,
+  inIframe: (() => { try { return window.self !== window.top; } catch (e) { return true; } })(),
+  isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  nfc: { active: false, ctrl: null },
+  get nfcApi() { return 'NDEFReader' in window; },
+  get nfcUsable() { return this.nfcApi && window.isSecureContext && !this.inIframe; },
+  nfcReason() {
+    if (!this.nfcApi) return this.isIOS ? 'iPhone/iPad belum mendukung Web NFC di browser — gunakan reader USB/Bluetooth' : 'Browser ini tidak mendukung Web NFC (hanya Chrome di Android)';
+    if (!window.isSecureContext) return 'Web NFC wajib dibuka lewat HTTPS';
+    if (this.inIframe) return 'Web NFC tidak bisa berjalan di dalam iframe (URL Apps Script). Buka versi hosting HTTPS';
+    return '';
+  },
+  on(fn) { this.handler = fn; },
+  off() { this.handler = null; },
+  emit(raw, src) {
+    const uid = normUid(raw); if (!uid) return;
+    const t = Date.now();
+    if (uid === this.last && t - this.lastT < 3000) return;  // abaikan tap ganda
+    this.last = uid; this.lastT = t;
+    if (this.handler) this.handler(uid, src);
+  },
+  async startNFC() {
+    if (!this.nfcUsable) throw new Error(this.nfcReason());
+    if (this.nfc.active) return;
+    const r = new NDEFReader();
+    this.nfc.ctrl = new AbortController();
+    await r.scan({ signal: this.nfc.ctrl.signal });
+    r.onreading = e => {
+      if (!e.serialNumber) { toast('Kartu terbaca tetapi nomor serinya tidak tersedia untuk browser', 'warn'); return; }
+      this.emit(e.serialNumber, 'NFC');
+    };
+    r.onreadingerror = () => { feedback(false); toast('Kartu tidak dapat dibaca NFC HP. Tempel ulang, atau gunakan reader USB.', 'bad'); };
+    this.nfc.active = true;
+  },
+  stopNFC() { try { this.nfc.ctrl && this.nfc.ctrl.abort(); } catch (e) { } this.nfc.active = false; },
+  async nfcPermission() { try { return (await navigator.permissions.query({ name: 'nfc' })).state; } catch (e) { return 'unknown'; } },
+  initKeyboardWedge() {
+    // Reader USB/Bluetooth "keyboard emulation" mengetik UID sangat cepat (<100ms/karakter) lalu Enter.
+    let buf = '', lastT = 0;
+    document.addEventListener('keydown', e => {
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) { buf = ''; return; }
+      const now = performance.now();
+      if (now - lastT > 100) buf = '';
+      lastT = now;
+      if (e.key === 'Enter') { if (buf.length >= 4) { e.preventDefault(); this.emit(buf, 'RFID'); } buf = ''; return; }
+      if (e.key && e.key.length === 1 && /[0-9A-Za-z:\-]/.test(e.key)) buf += e.key;
+    }, true);
+  }
+};
+
+/* Bunyi & getar sebagai umpan balik scan */
+let audioCtx = null;
+function feedback(ok) {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audioCtx.currentTime, g = audioCtx.createGain(); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(.22, t0 + .02); g.gain.exponentialRampToValueAtTime(.0001, t0 + (ok ? .32 : .45));
+    const tones = ok ? [[1046, 0, .12], [1568, .12, .3]] : [[220, 0, .4]];
+    tones.forEach(([f, a, b]) => { const o = audioCtx.createOscillator(); o.type = ok ? 'sine' : 'square'; o.frequency.value = f; o.connect(g); o.start(t0 + a); o.stop(t0 + b); });
+  } catch (e) { }
+  try { navigator.vibrate && navigator.vibrate(ok ? 80 : [80, 60, 80]); } catch (e) { }
+}
+
+/* =====================================================================
+ *  QR E-SIGN
+ * ===================================================================== */
+function baseUrl() { return (S.settings && S.settings.verifyUrl) || ((MODE === 'gas' && S.appUrl) ? S.appUrl : location.href.split(/[?#]/)[0]); }
+/* Isi QR dibuat sependek mungkin agar tetap mudah dipindai saat dicetak kecil */
+function verifyUrl(r) { return `${baseUrl()}?v=${encodeURIComponent(r.id)}.${encodeURIComponent(r.sig)}`; }
+function makeQR(text) { const q = qrcode(0, 'L'); q.addData(text); q.make(); return q; }
+function qrSvg(text) {
+  if (typeof qrcode === 'undefined') return '<svg viewBox="0 0 10 10"><text x="1" y="6" font-size="3">QR</text></svg>';
+  const q = makeQR(text), n = q.getModuleCount(); let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c},${r}h1v1h-1z`;
+  return `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><path d="${d}" fill="#0F1638"/></svg>`;
+}
+
+/* =====================================================================
+ *  UI HELPERS: toast, modal, konfirmasi
+ * ===================================================================== */
+function toast(msg, type = '', ms = 3500) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = (type === 'ok' ? I.check : type === 'bad' ? I.x : type === 'warn' ? I.warn : I.info) + `<span>${esc(msg)}</span>`;
+  const box = $('#toasts'); box.appendChild(el);
+  while (box.children.length > 3) box.firstElementChild.remove();
+  setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, ms);
+}
+function openModal({ title, body = '', icon = 'info', tone = 'info', actions = [], size = '', onOpen, dismiss = true, timeout = 0 }) {
+  return new Promise(resolve => {
+    const bg = document.createElement('div');
+    bg.className = 'modal-bg';
+    bg.innerHTML = `<div class="modal ${size}" role="dialog" aria-modal="true">
+      <div class="modal-h">${icon ? `<div class="mi ${tone}">${I[icon] || ''}</div>` : ''}<div style="flex:1;min-width:0"><h2>${esc(title)}</h2></div></div>
+      <div class="modal-b">${body}${timeout ? `<div class="countdown"><i style="animation-duration:${timeout}s"></i></div>` : ''}</div>
+      ${actions.length ? `<div class="modal-f">${actions.map((a, i) => `<button type="button" class="btn ${a.cls || 'btn-ghost'}" data-i="${i}">${a.icon ? I[a.icon] : ''}${esc(a.label)}</button>`).join('')}</div>` : ''}
+    </div>`;
+    let done = false, timer = null;
+    const close = val => { if (done) return; done = true; clearTimeout(timer); bg.remove(); document.removeEventListener('keydown', onKey, true); resolve(val); };
+    const ctx = { el: bg, close };
+    const onKey = e => { if (e.key === 'Escape' && dismiss && bg === $$('.modal-bg').pop()) { e.stopPropagation(); close(null); } };
+    document.addEventListener('keydown', onKey, true);
+    bg.addEventListener('click', e => { if (e.target === bg && dismiss) close(null); });
+    $$('.modal-f .btn', bg).forEach(b => b.addEventListener('click', async () => {
+      const a = actions[+b.dataset.i];
+      if (a.onClick) {
+        clearTimeout(timer); const cd = $('.countdown', bg); if (cd) cd.remove();
+        b.disabled = true; const old = b.innerHTML; b.innerHTML = `<span class="spinner${(a.cls || 'btn-ghost').includes('ghost') ? ' dark' : ''}"></span>`;
+        try { const v = await a.onClick(ctx); if (v !== false) close(v === undefined ? a.value : v); }
+        catch (e) { toast(e.message, 'bad', 5000); }
+        finally { if (!done) { b.disabled = false; b.innerHTML = old; } }
+      } else close(a.value);
+    }));
+    $('#modals').appendChild(bg);
+    if (timeout) timer = setTimeout(() => close(null), timeout * 1000);
+    if (onOpen) onOpen(ctx);
+    const f = $('input:not([type=hidden]),select,textarea', bg);
+    if (f && !matchMedia('(pointer:coarse)').matches) setTimeout(() => { if (!bg.contains(document.activeElement)) f.focus(); }, 60);
+  });
+}
+function confirmDialog({ title, message, ok = 'Ya, lanjutkan', cancel = 'Batal', danger = false }) {
+  return openModal({
+    title, size: 'sm', icon: danger ? 'warn' : 'info', tone: danger ? 'danger' : 'info',
+    body: `<div class="muted">${message}</div>`,
+    actions: [{ label: cancel, value: false }, { label: ok, value: true, cls: danger ? 'btn-danger' : 'btn-primary' }]
+  }).then(v => !!v);
+}
+function formData(el) { const o = {}; $$('[name]', el).forEach(i => { o[i.name] = i.type === 'checkbox' ? String(i.checked) : i.value.trim(); }); return o; }
+async function withBusy(btn, fn) { const old = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner' + (btn.classList.contains('btn-ghost') ? ' dark' : '') + '"></span>'; try { return await fn(); } catch (e) { toast(e.message, 'bad', 5000); } finally { btn.disabled = false; btn.innerHTML = old; } }
+const loadingHTML = '<div class="loading"><div class="spinner dark"></div></div>';
+const errorCard = msg => `<div class="card card-pad" style="color:var(--bad)"><b>Gagal memuat:</b> ${esc(msg)}</div>`;
+
+/* =====================================================================
+ *  ROUTER
+ * ===================================================================== */
+const app = () => $('#app');
+let cleanup = [];
+function go(h) { if (location.hash === h) route(); else location.hash = h; }
+function onCleanup(fn) { cleanup.push(fn); }
+function route() {
+  cleanup.forEach(f => { try { f(); } catch (e) { } }); cleanup = []; Reader.off();
+  $$('.modal-bg').forEach(m => m.remove());
+  const p = (location.hash || '#/').replace(/^#\/?/, '').split('/').map(decodeURIComponent);
+  window.scrollTo(0, 0);
+  renderTop();
+  if (p[0] === 'peserta') return viewEvents();
+  if (p[0] === 'hadir' && p[1]) return viewKiosk(p[1]);
+  if (p[0] === 'login') return viewLogin();
+  if (p[0] === 'verify') return viewVerify(p[1] || '', p[2] || '');
+  if (p[0] === 'admin') {
+    if (!S.token) return go('#/login');
+    if (p[1] === 'hadir' && p[2]) return viewAdminAttendance(p[2]);
+    return viewAdmin(p[1] || 'agenda');
+  }
+  viewHome();
+}
+function renderTop() {
+  const ta = $('#topActions');
+  ta.innerHTML = S.token ? `<button class="btn btn-ghost btn-sm" id="btnLogout" title="Keluar">${I.out}<span class="hide-sm">Keluar</span></button>` : '';
+  const b = $('#btnLogout');
+  if (b) b.onclick = async () => {
+    if (!await confirmDialog({ title: 'Keluar dari admin?', message: 'Sesi admin di perangkat ini akan diakhiri.', ok: 'Keluar' })) return;
+    try { await api('logout'); } catch (e) { }
+    setSession(null, null); toast('Anda telah keluar', 'ok'); go('#/');
+  };
+}
+
+/* =====================================================================
+ *  VIEW: BERANDA
+ * ===================================================================== */
+function viewHome() {
+  const nfcPill = Reader.nfcUsable ? '<span class="pill ok"><span class="dot"></span>NFC HP siap</span>' : `<span class="pill warn"><span class="dot"></span>NFC HP tidak tersedia di perangkat ini</span>`;
+  app().innerHTML = `
+  <section class="hero">
+    <span class="eyebrow">${icon('nfc', 16)} NFC · RFID · E-Sign</span>
+    <h1>Daftar Hadir Rapat<br>tanpa kertas & pulpen.</h1>
+    <p>Tempelkan kartu pegawai — nama, NIPP/NIK, jabatan, dan kontak terisi otomatis, lalu tanda tangan elektronik berupa QR code dibuat oleh sistem.</p>
+  </section>
+  <div class="choices">
+    <a class="choice p" href="#/peserta">
+      <div class="ic">${I.card}</div>
+      <h3>Saya Peserta Rapat</h3>
+      <div class="muted">Pilih agenda rapat, lalu tempelkan kartu pegawai untuk presensi.</div>
+      <div class="go">Mulai presensi ${I.arrow}</div>
+    </a>
+    <a class="choice a" href="${S.token ? '#/admin' : '#/login'}">
+      <div class="ic">${I.shield}</div>
+      <h3>Admin</h3>
+      <div class="muted">Kelola agenda rapat, data pegawai & kartu, serta ekspor daftar hadir ke PDF A4.</div>
+      <div class="go">${S.token ? 'Buka dasbor' : 'Login admin'} ${I.arrow}</div>
+    </a>
+  </div>
+  <div class="caps">${nfcPill}<span class="pill ok"><span class="dot"></span>Reader RFID/NFC USB & Bluetooth didukung</span></div>
+  ${!Reader.nfcUsable ? `<div class="capnote">${icon('info', 16)} ${esc(Reader.nfcReason())}. Reader kartu USB/Bluetooth (mode keyboard) tetap berfungsi di perangkat ini.</div>` : ''}`;
+}
+
+/* =====================================================================
+ *  VIEW: PILIH AGENDA (PESERTA)
+ * ===================================================================== */
+function eventCard(e) {
+  const d = parseYmd(e.tanggal), isToday = e.tanggal === todayYmd();
+  return `<button class="card ev" data-id="${esc(e.id)}">
+    <div class="datebox ${isToday ? 'today' : ''}"><div class="m">${BULAN[d.getMonth()].substr(0, 3)}</div><div class="d">${d.getDate()}</div><div class="m">${d.getFullYear()}</div></div>
+    <div style="min-width:0;flex:1">
+      <h3>${esc(e.acara)}</h3>
+      <div class="muted" style="font-size:13px">${esc(e.hari)}, ${fmtTgl(e.tanggal)}</div>
+      <div class="row" style="margin-top:8px;gap:6px">${isToday ? '<span class="badge org">Hari ini</span>' : ''}<span class="badge">${icon('users', 13)} ${e.jumlahHadir} hadir</span></div>
+    </div></button>`;
+}
+async function viewEvents() {
+  app().innerHTML = `<button class="back" onclick="go('#/')">${I.back} Beranda</button>
+    <div class="row" style="justify-content:space-between;margin-bottom:16px"><div><h2>Pilih Agenda Rapat</h2><div class="muted">Pilih rapat yang akan Anda hadiri.</div></div>
+    <div class="search" style="max-width:320px">${I.search}<input class="input" id="q" placeholder="Cari agenda…"></div></div>
+    <div id="list">${loadingHTML}</div>`;
+  let rows = [];
+  const draw = () => {
+    const q = ($('#q').value || '').toLowerCase();
+    const f = rows.filter(r => !q || (r.acara + ' ' + r.hari + ' ' + fmtTgl(r.tanggal)).toLowerCase().includes(q));
+    $('#list').innerHTML = f.length ? `<div class="ev-grid">${f.map(eventCard).join('')}</div>` : `<div class="card empty">${I.cal}<div><b>${rows.length ? 'Tidak ada yang cocok' : 'Belum ada agenda aktif'}</b></div><div>${rows.length ? 'Ubah kata kunci pencarian.' : 'Hubungi admin untuk membuat agenda rapat.'}</div></div>`;
+    $$('.ev', $('#list')).forEach(b => b.onclick = () => go('#/hadir/' + encodeURIComponent(b.dataset.id)));
+  };
+  $('#q').oninput = draw;
+  try { rows = await api('listEvents'); const t = todayYmd(); rows.sort((a, b) => (b.tanggal === t) - (a.tanggal === t)); draw(); }
+  catch (e) { $('#list').innerHTML = errorCard(e.message); }
+}
+
+/* =====================================================================
+ *  VIEW: KIOSK PRESENSI
+ * ===================================================================== */
+function attTable(rows, { admin = false, highlight = '' } = {}) {
+  if (!rows.length) return `<div class="empty">${I.users}<div><b>Belum ada peserta yang hadir</b></div><div>Daftar terisi otomatis saat kartu dipindai.</div></div>`;
+  return `<div class="tbl-wrap"><table class="tbl stack"><thead><tr><th class="no">No</th><th>Nama</th><th>NIPP / NIK</th><th>Jabatan</th><th>Handphone</th><th>Email</th><th>Tanda Tangan</th>${admin ? '<th></th>' : ''}</tr></thead><tbody>
+  ${rows.map(r => `<tr class="${r.id === highlight ? 'flash' : ''}">
+    <td class="no" data-l="No">${r.no}</td>
+    <td data-l="Nama" class="name-cell"><b>${esc(r.nama)}</b>${admin ? `<small>${esc(r.metode || '')}</small>` : ''}</td>
+    <td data-l="NIPP/NIK" class="mono">${esc(r.nipp)}</td>
+    <td data-l="Jabatan">${esc(r.jabatan)}</td>
+    <td data-l="Handphone" class="mono">${esc(r.hp)}</td>
+    <td data-l="Email" style="word-break:break-all">${esc(r.email)}</td>
+    <td data-l="TTD"><button class="qr" data-qr="${esc(r.id)}" title="Lihat e-sign">${qrSvg(verifyUrl(r))}<small>E-sign<br>${fmtJam(r.waktu)} WIB</small></button></td>
+    ${admin ? `<td class="acts"><button class="btn btn-danger-ghost btn-sm" data-del="${esc(r.id)}">${I.trash} Hapus</button></td>` : ''}
+  </tr>`).join('')}</tbody></table></div>`;
+}
+function showESign(r, ev) {
+  openModal({
+    title: 'Tanda Tangan Elektronik', icon: 'shield', tone: 'ok',
+    body: `<div class="big-qr">${qrSvg(verifyUrl(r))}</div>
+      <dl class="kv"><dt>Nama</dt><dd>${esc(r.nama)}</dd><dt>NIPP/NIK</dt><dd class="mono">${esc(r.nipp)}</dd><dt>Agenda</dt><dd>${esc(ev ? ev.acara : '')}</dd><dt>Waktu</dt><dd>${fmtTgl(String(r.waktu).substr(0, 10))}, ${fmtJam(r.waktu)} WIB</dd><dt>Kode</dt><dd class="mono">${esc(r.id)} · ${esc(r.sig)}</dd></dl>
+      <p class="muted" style="font-size:12.5px;margin:10px 0 0">Pindai QR untuk memverifikasi keaslian tanda tangan ke server.</p>`,
+    actions: [{ label: 'Tutup', cls: 'btn-primary' }]
+  });
+}
+async function viewKiosk(eventId) {
+  app().innerHTML = loadingHTML;
+  let ev, rows = [], busy = false, lastHL = '';
+  try {
+    ev = (await api('listEvents')).find(e => e.id === eventId);
+    if (!ev && S.token) ev = (await api('listEvents', { all: true })).find(e => e.id === eventId);
+  } catch (e) { app().innerHTML = errorCard(e.message); return; }
+  if (!ev) { app().innerHTML = `<button class="back" onclick="go('#/peserta')">${I.back} Kembali</button><div class="card empty">${I.cal}<div><b>Agenda tidak ditemukan atau presensi sudah ditutup.</b></div></div>`; return; }
+  const manualAllowed = S.settings && S.settings.izinManual === 'true';
+  const backTo = S.token ? '#/admin/hadir/' + encodeURIComponent(eventId) : '#/peserta';
+  app().innerHTML = `
+  <button class="back" id="backBtn">${I.back} ${S.token ? 'Kembali ke admin' : 'Ganti agenda'}</button>
+  ${MODE === 'demo' ? `<div class="demo-bar"><b>Mode demo</b> — belum ada reader? Simulasikan tap kartu:
+     <select class="input" id="simSel" style="min-height:36px;padding:6px 10px;width:auto"><option value="">Pilih kartu…</option></select>
+     <button class="btn btn-accent btn-sm" id="simBtn">${I.nfc} Tap kartu</button></div>` : ''}
+  ${ev.status !== 'aktif' ? '<div class="demo-bar"><b>Presensi agenda ini ditutup.</b> Hanya admin yang dapat menambah kehadiran.</div>' : ''}
+  <div class="kiosk">
+    <div class="grid">
+      <div class="meta-card">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.1em;opacity:.75;text-transform:uppercase">Daftar Hadir Rapat</div>
+        <h2 style="color:#fff;margin-top:6px;font-size:22px">${esc(ev.acara)}</h2>
+        <dl><dt>Tanggal</dt><dd>${fmtTgl(ev.tanggal)}</dd><dt>Hari</dt><dd>${esc(ev.hari)}</dd><dt>Acara</dt><dd>${esc(ev.acara)}</dd></dl>
+        <div class="counter"><b id="cnt">0</b><span style="opacity:.8">peserta hadir</span></div>
+      </div>
+      <div class="card scan">
+        <div class="radar" id="radar"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="core">${I.nfc}</div></div>
+        <h2 id="scanTitle">Tempelkan kartu pegawai</h2>
+        <div class="muted" id="scanSub">Data diri Anda akan terisi otomatis.</div>
+        <div class="readers">
+          <div class="reader ${Reader.nfcUsable ? '' : 'off'}" id="rNfc"><div class="ri">${I.nfc}</div><div><b>NFC di HP</b><span id="rNfcTxt">${Reader.nfcUsable ? 'Ketuk "Aktifkan", lalu tempel kartu di belakang HP' : esc(Reader.nfcReason())}</span></div>${Reader.nfcUsable ? '<button class="btn btn-accent btn-sm" id="btnNfc">Aktifkan</button>' : ''}</div>
+          <div class="reader on"><div class="ri">${I.usb}</div><div><b>Reader RFID / NFC (USB · Bluetooth)</b><span>Siap — tempel kartu pada reader</span></div></div>
+          ${manualAllowed ? `<div class="reader"><div class="ri">${I.kbd}</div><div><b>Kartu bermasalah?</b><span>Presensi dengan NIPP/NIK</span></div><button class="btn btn-ghost btn-sm" id="btnManual">Input NIPP</button></div>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="card" style="min-width:0">
+      <div class="toolbar" style="justify-content:space-between"><h3>Peserta Hadir</h3><span class="muted" style="font-size:12.5px">Kontak disamarkan untuk privasi · diperbarui otomatis</span></div>
+      <div id="att">${loadingHTML}</div>
+    </div>
+  </div>`;
+  $('#backBtn').onclick = () => go(backTo);
+  const setRadar = st => { const r = $('#radar'); if (r) r.className = 'radar ' + st; };
+
+  async function refresh() {
+    try { rows = await api('listAttendance', { eventId }); } catch (e) { return; }
+    const box = $('#att'); if (!box) return;
+    box.innerHTML = attTable(rows, { highlight: lastHL });
+    $('#cnt').textContent = rows.length;
+    $$('[data-qr]', box).forEach(b => b.onclick = () => showESign(rows.find(r => r.id === b.dataset.qr), ev));
+  }
+
+  async function doCheckin(info, call) {
+    const res = await openModal({
+      title: 'Konfirmasi Presensi', icon: 'user', tone: 'info', timeout: CONFIG.CONFIRM_TIMEOUT_S, dismiss: false,
+      body: `<p class="muted" style="margin:0 0 10px">${info.fromCard ? 'Data terbaca dari kartu. Pastikan ini Anda.' : 'Data akan dicocokkan dengan database.'}</p>
+        <dl class="kv"><dt>Nama</dt><dd>${esc(info.nama)}</dd><dt>NIPP / NIK</dt><dd class="mono">${esc(info.nipp)}</dd><dt>Jabatan</dt><dd>${esc(info.jabatan || '-')}</dd><dt>Handphone</dt><dd class="mono">${esc(info.hp || '-')}</dd><dt>Email</dt><dd>${esc(info.email || '-')}</dd></dl>`,
+      actions: [{ label: 'Bukan saya / Batal', value: null }, { label: 'Konfirmasi & Tanda Tangan', icon: 'check', cls: 'btn-accent', onClick: () => call() }]
+    });
+    if (!res) { toast('Presensi dibatalkan', '', 2000); return; }
+    feedback(true); lastHL = res.id;
+    await refresh();
+    openModal({
+      title: 'Presensi berhasil', icon: 'check', tone: 'ok', size: 'sm', timeout: 5,
+      body: `<div style="text-align:center"><div style="font-size:20px;font-weight:800">${esc(res.nama)}</div><div class="muted">No. urut ${res.no} · ${fmtJam(res.waktu)} WIB</div><div class="big-qr" style="margin-top:12px">${qrSvg(verifyUrl(res))}</div><div class="muted" style="font-size:12.5px">QR ini adalah tanda tangan elektronik Anda pada daftar hadir.</div></div>`,
+      actions: [{ label: 'Selesai', cls: 'btn-primary' }]
+    });
+  }
+  function fail(msg, uid) {
+    feedback(false);
+    openModal({ title: 'Presensi gagal', icon: 'x', tone: 'danger', size: 'sm', timeout: 6, body: `<div class="muted">${esc(msg)}</div>${uid ? `<div class="mono muted" style="font-size:12px;margin-top:8px">UID: ${esc(uid)}</div>` : ''}`, actions: [{ label: 'Tutup', cls: 'btn-primary' }] });
+  }
+
+  async function onCard(uid, src) {
+    if (busy || $('.modal-bg')) return;
+    busy = true; setRadar('busy'); $('#scanTitle').textContent = 'Membaca data…'; $('#scanSub').textContent = `Kartu ${src} · ${uid}`;
+    try {
+      const emp = await api('lookupCard', { uid });
+      await doCheckin({ ...emp, fromCard: true }, () => api('checkIn', { eventId, uid, metode: src === 'NFC' ? 'NFC HP' : src === 'Simulasi' ? 'Simulasi (demo)' : 'Reader RFID/NFC' }));
+    } catch (e) { fail(e.message, uid); }
+    finally { busy = false; setRadar(''); const t = $('#scanTitle'); if (t) { t.textContent = 'Tempelkan kartu pegawai'; $('#scanSub').textContent = 'Data diri Anda akan terisi otomatis.'; } }
+  }
+  Reader.on(onCard);
+
+  const btnNfc = $('#btnNfc');
+  const nfcOn = () => { $('#rNfc').classList.add('on'); $('#rNfcTxt').textContent = 'Aktif — tempelkan kartu di belakang HP'; const b = $('#btnNfc'); if (b) b.remove(); };
+  if (btnNfc) {
+    btnNfc.onclick = async () => { try { await Reader.startNFC(); nfcOn(); toast('NFC aktif', 'ok'); } catch (e) { toast('NFC gagal diaktifkan: ' + e.message, 'bad', 6000); } };
+    if (Reader.nfc.active) nfcOn();
+    else if (await Reader.nfcPermission() === 'granted') { try { await Reader.startNFC(); nfcOn(); } catch (e) { } }
+  }
+  const bm = $('#btnManual');
+  if (bm) bm.onclick = async () => {
+    const nipp = await openModal({
+      title: 'Presensi dengan NIPP/NIK', icon: 'kbd', size: 'sm',
+      body: `<div class="field"><label>NIPP / NIK</label><input class="input mono" id="mNipp" inputmode="numeric" autocomplete="off"></div>`,
+      actions: [{ label: 'Batal', value: null }, { label: 'Lanjut', cls: 'btn-primary', onClick: ({ el }) => { const v = $('#mNipp', el).value.trim(); if (!v) throw new Error('NIPP/NIK wajib diisi'); return v; } }]
+    });
+    if (!nipp) return;
+    busy = true;
+    try { await doCheckin({ nama: '(dicocokkan dengan database)', nipp, jabatan: '', hp: '', email: '' }, () => api('checkInManual', { eventId, nipp })); }
+    catch (e) { fail(e.message); }
+    finally { busy = false; }
+  };
+  if (MODE === 'demo') {
+    const list = await LocalAPI.demoEmployees();
+    $('#simSel').innerHTML += list.map(e => `<option value="${esc(e.uid)}">${esc(e.nama)} — ${esc(e.uid)}</option>`).join('') + '<option value="DEADBEEF">Kartu tidak terdaftar — DEADBEEF</option>';
+    $('#simBtn').onclick = () => { const v = $('#simSel').value; if (!v) return toast('Pilih kartu dahulu', 'warn'); Reader.last = ''; Reader.emit(v, 'Simulasi'); };
+  }
+  await refresh();
+  const iv = setInterval(() => { if (!$('.modal-bg')) refresh(); }, CONFIG.KIOSK_REFRESH_MS);
+  onCleanup(() => clearInterval(iv));
+}
+
+/* =====================================================================
+ *  VIEW: LOGIN
+ * ===================================================================== */
+function viewLogin() {
+  if (S.token) return go('#/admin');
+  app().innerHTML = `<div class="auth"><button class="back" onclick="go('#/')">${I.back} Beranda</button>
+  <div class="card"><img class="logo" src="${esc(logoSrc())}" alt="Logo"><h2>Login Admin</h2><p class="muted" style="margin:4px 0 20px">Masuk untuk mengelola agenda rapat dan data pegawai.</p>
+  <form id="f"><div class="field"><label>Username</label><input class="input" name="username" autocomplete="username" required></div>
+  <div class="field"><label>Password</label><input class="input" type="password" name="password" autocomplete="current-password" required></div>
+  <button class="btn btn-primary" style="width:100%" type="submit">${I.lock} Masuk</button></form>
+  ${MODE === 'demo' ? '<p class="muted" style="font-size:12.5px;margin:14px 0 0">Mode demo: <b>admin</b> / <b>admin123</b></p>' : ''}
+  </div></div>`;
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    await withBusy($('button[type=submit]', e.target), async () => {
+      const r = await api('login', formData(e.target));
+      setSession(r.token, r.user); toast('Selamat datang, ' + r.user, 'ok');
+      if (r.defaultPassword) setTimeout(() => toast('Anda masih memakai password bawaan. Segera ganti di menu Pengaturan.', 'warn', 7000), 600);
+      go('#/admin');
+    });
+  };
+}
+
+/* =====================================================================
+ *  VIEW: ADMIN
+ * ===================================================================== */
+function viewAdmin(tab) {
+  const tabs = [['agenda', 'Agenda Rapat', I.cal], ['pegawai', 'Data Pegawai & Kartu', I.users], ['pengaturan', 'Pengaturan', I.gear]];
+  app().innerHTML = `<div style="margin-bottom:16px"><h2>Dasbor Admin</h2><div class="muted">Masuk sebagai <b>${esc(S.user || 'admin')}</b></div></div>
+    <div class="tabs">${tabs.map(t => `<button class="tab ${t[0] === tab ? 'on' : ''}" data-t="${t[0]}">${t[2]}${t[1]}</button>`).join('')}</div>
+    <div id="pane">${loadingHTML}</div>`;
+  $$('.tab').forEach(b => b.onclick = () => go('#/admin/' + b.dataset.t));
+  if (tab === 'pegawai') return paneEmployees();
+  if (tab === 'pengaturan') return paneSettings();
+  return paneEvents();
+}
+
+/* ---------- Agenda (CRUD) ---------- */
+async function paneEvents() {
+  const pane = $('#pane'); if (!pane) return;
+  let rows = [];
+  try { rows = await api('listEvents', { all: true }); } catch (e) { pane.innerHTML = errorCard(e.message); return; }
+  const aktif = rows.filter(r => r.status === 'aktif').length, hadir = rows.reduce((s, r) => s + Number(r.jumlahHadir || 0), 0);
+  pane.innerHTML = `<div class="stats"><div class="card stat"><small>Total agenda</small><b>${rows.length}</b></div><div class="card stat"><small>Presensi dibuka</small><b>${aktif}</b></div><div class="card stat"><small>Total kehadiran</small><b>${hadir}</b></div></div>
+  <div class="card"><div class="toolbar"><div class="search">${I.search}<input class="input" id="q" placeholder="Cari agenda…"></div><button class="btn btn-accent" id="add">${I.plus} Agenda Baru</button></div><div id="tb"></div></div>`;
+  const draw = () => {
+    const q = $('#q').value.toLowerCase();
+    const f = rows.filter(r => !q || (r.acara + r.hari + fmtTgl(r.tanggal)).toLowerCase().includes(q));
+    $('#tb').innerHTML = f.length ? `<div class="tbl-wrap"><table class="tbl stack"><thead><tr><th>Tanggal</th><th>Hari</th><th>Acara</th><th>Status</th><th>Hadir</th><th></th></tr></thead><tbody>
+      ${f.map(r => `<tr><td data-l="Tanggal">${fmtTgl(r.tanggal)}</td><td data-l="Hari">${esc(r.hari)}</td><td data-l="Acara"><b>${esc(r.acara)}</b></td>
+      <td data-l="Status">${r.status === 'aktif' ? '<span class="badge ok">Dibuka</span>' : '<span class="badge gray">Ditutup</span>'}</td>
+      <td data-l="Hadir"><b>${r.jumlahHadir}</b></td>
+      <td class="acts"><button class="btn btn-primary btn-sm" data-open="${esc(r.id)}">${I.list} Daftar Hadir</button>
+        <button class="btn btn-ghost btn-sm btn-icon" title="Ubah" data-edit="${esc(r.id)}">${I.edit}</button>
+        <button class="btn btn-danger-ghost btn-sm btn-icon" title="Hapus" data-del="${esc(r.id)}">${I.trash}</button></td></tr>`).join('')}
+      </tbody></table></div>` : `<div class="empty">${I.cal}<div><b>${rows.length ? 'Tidak ada yang cocok' : 'Belum ada agenda'}</b></div><div>Klik "Agenda Baru" untuk membuat.</div></div>`;
+    $$('[data-open]').forEach(b => b.onclick = () => go('#/admin/hadir/' + encodeURIComponent(b.dataset.open)));
+    $$('[data-edit]').forEach(b => b.onclick = () => eventForm(rows.find(r => r.id === b.dataset.edit)));
+    $$('[data-del]').forEach(b => b.onclick = async () => {
+      const r = rows.find(x => x.id === b.dataset.del);
+      if (!await confirmDialog({ title: 'Hapus agenda?', danger: true, ok: 'Ya, hapus', message: `Agenda <b>${esc(r.acara)}</b> (${fmtTgl(r.tanggal)}) beserta <b>${r.jumlahHadir} data kehadiran</b> akan dihapus permanen.` })) return;
+      try { await api('deleteEvent', { id: r.id }); toast('Agenda dihapus', 'ok'); paneEvents(); } catch (e) { toast(e.message, 'bad'); }
+    });
+  };
+  $('#q').oninput = draw; draw();
+  $('#add').onclick = () => eventForm(null);
+}
+function eventForm(ev) {
+  const isNew = !ev; ev = ev || { tanggal: todayYmd(), hari: hariDari(todayYmd()), acara: '', status: 'aktif' };
+  openModal({
+    title: isNew ? 'Agenda Rapat Baru' : 'Ubah Agenda Rapat', icon: 'cal',
+    body: `<form id="evf" onsubmit="return false">
+      <div class="grid-2"><div class="field"><label>Tanggal</label><input class="input" type="date" name="tanggal" value="${esc(ev.tanggal)}" required></div>
+      <div class="field"><label>Hari</label><input class="input" name="hari" value="${esc(ev.hari)}"><span class="hint">Terisi otomatis dari tanggal</span></div></div>
+      <div class="field"><label>Acara</label><textarea class="input" name="acara" rows="2" required placeholder="Contoh: Rapat Evaluasi Kinerja Triwulan III">${esc(ev.acara)}</textarea></div>
+      <div class="field"><label>Status presensi</label><select class="input" name="status"><option value="aktif" ${ev.status === 'aktif' ? 'selected' : ''}>Dibuka — tampil di halaman peserta</option><option value="selesai" ${ev.status !== 'aktif' ? 'selected' : ''}>Ditutup — tidak bisa presensi</option></select></div>
+    </form>`,
+    onOpen: ({ el }) => { const t = $('[name=tanggal]', el), h = $('[name=hari]', el); t.onchange = () => { if (t.value) h.value = hariDari(t.value); }; },
+    actions: [{ label: 'Batal' }, {
+      label: isNew ? 'Simpan Agenda' : 'Simpan Perubahan', cls: 'btn-primary', icon: 'check', onClick: async ({ el }) => {
+        const d = formData($('#evf', el));
+        if (!d.tanggal || !d.acara) throw new Error('Tanggal dan Acara wajib diisi');
+        if (!d.hari) d.hari = hariDari(d.tanggal);
+        if (!await confirmDialog({ title: isNew ? 'Simpan agenda baru?' : 'Simpan perubahan agenda?', message: `<b>${esc(d.acara)}</b><br>${esc(d.hari)}, ${fmtTgl(d.tanggal)}` })) return false;
+        await api('saveEvent', { ...d, id: isNew ? '' : ev.id });
+        toast(isNew ? 'Agenda dibuat' : 'Agenda diperbarui', 'ok'); paneEvents(); return true;
+      }
+    }]
+  });
+}
+
+/* ---------- Pegawai (CRUD) ---------- */
+async function paneEmployees() {
+  const pane = $('#pane'); if (!pane) return;
+  let rows = [];
+  try { rows = await api('listEmployees'); } catch (e) { pane.innerHTML = errorCard(e.message); return; }
+  pane.innerHTML = `<div class="card card-pad" style="margin-bottom:16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+      <div class="radar" style="width:56px;height:56px;margin:0"><div class="ring"></div><div class="core" style="width:40px;height:40px">${icon('nfc', 22)}</div></div>
+      <div style="flex:1;min-width:200px"><b>Scan kartu untuk mencari / mendaftarkan</b><div class="muted" style="font-size:13px">Tempel kartu pada reader. Jika belum terdaftar, formulir pegawai baru terbuka dengan UID terisi.</div></div>
+      ${Reader.nfcUsable ? `<button class="btn btn-ghost btn-sm" id="nfcA">${I.nfc} ${Reader.nfc.active ? 'NFC aktif' : 'Aktifkan NFC HP'}</button>` : ''}
+    </div>
+    <div class="card"><div class="toolbar"><div class="search">${I.search}<input class="input" id="q" placeholder="Cari nama, NIPP, jabatan, UID…"></div>
+      <button class="btn btn-ghost" id="tpl">${I.download} Template CSV</button>
+      <label class="btn btn-ghost" style="margin:0">${I.upload} Import CSV<input type="file" id="imp" accept=".csv,text/csv" class="sr"></label>
+      <button class="btn btn-ghost" id="exp">${I.download} Export CSV</button>
+      <button class="btn btn-accent" id="add">${I.plus} Pegawai</button></div><div id="tb"></div></div>`;
+  const draw = hl => {
+    const q = $('#q').value.toLowerCase();
+    const f = rows.filter(r => !q || [r.nama, r.nipp, r.jabatan, r.uid, r.email, r.hp].join(' ').toLowerCase().includes(q));
+    $('#tb').innerHTML = f.length ? `<div class="tbl-wrap"><table class="tbl stack"><thead><tr><th>Nama</th><th>NIPP / NIK</th><th>Jabatan</th><th>Handphone</th><th>Email</th><th>UID Kartu</th><th></th></tr></thead><tbody>
+      ${f.map(r => `<tr class="${r.id === hl ? 'flash' : ''}"><td data-l="Nama"><b>${esc(r.nama)}</b></td><td data-l="NIPP/NIK" class="mono">${esc(r.nipp)}</td><td data-l="Jabatan">${esc(r.jabatan)}</td><td data-l="HP" class="mono">${esc(r.hp)}</td><td data-l="Email" style="word-break:break-all">${esc(r.email)}</td><td data-l="UID" class="mono">${esc(r.uid)}</td>
+      <td class="acts"><button class="btn btn-ghost btn-sm btn-icon" title="Ubah" data-edit="${esc(r.id)}">${I.edit}</button><button class="btn btn-danger-ghost btn-sm btn-icon" title="Hapus" data-del="${esc(r.id)}">${I.trash}</button></td></tr>`).join('')}
+      </tbody></table></div>` : `<div class="empty">${I.users}<div><b>${rows.length ? 'Tidak ada yang cocok' : 'Belum ada data pegawai'}</b></div><div>Tambah manual, scan kartu, atau import CSV.</div></div>`;
+    $$('[data-edit]').forEach(b => b.onclick = () => employeeForm(rows.find(r => r.id === b.dataset.edit)));
+    $$('[data-del]').forEach(b => b.onclick = async () => {
+      const r = rows.find(x => x.id === b.dataset.del);
+      if (!await confirmDialog({ title: 'Hapus pegawai?', danger: true, ok: 'Ya, hapus', message: `<b>${esc(r.nama)}</b> (NIPP ${esc(r.nipp)}) akan dihapus dan kartunya tidak bisa dipakai presensi lagi. Riwayat kehadiran sebelumnya tetap tersimpan.` })) return;
+      try { await api('deleteEmployee', { id: r.id }); toast('Pegawai dihapus', 'ok'); paneEmployees(); } catch (e) { toast(e.message, 'bad'); }
+    });
+  };
+  $('#q').oninput = () => draw(); draw();
+  $('#add').onclick = () => employeeForm(null);
+  const nfcA = $('#nfcA'); if (nfcA) nfcA.onclick = async () => { try { await Reader.startNFC(); nfcA.innerHTML = I.nfc + ' NFC aktif'; toast('NFC aktif', 'ok'); } catch (e) { toast(e.message, 'bad'); } };
+  Reader.on(uid => {
+    if ($('.modal-bg')) return;
+    const set = new Set(uidCandidates(uid));
+    const hit = rows.find(e => { const n = normUid(e.uid); return set.has(n) || set.has(n.replace(/^0+/, '')); });
+    feedback(true);
+    if (hit) { $('#q').value = ''; draw(hit.id); toast(`Kartu milik ${hit.nama}`, 'ok'); employeeForm(hit); }
+    else { toast('Kartu baru terdeteksi: ' + uid, 'warn'); employeeForm(null, uid); }
+  });
+  $('#tpl').onclick = () => downloadText('template_pegawai.csv', 'uid,nama,nipp,jabatan,hp,email\n04A1B2C3D4E580,Nama Pegawai,12345,Jabatan,081200000000,nama@perusahaan.co.id\n');
+  $('#exp').onclick = () => downloadText('data_pegawai.csv', 'uid,nama,nipp,jabatan,hp,email\n' + rows.map(r => ['uid', 'nama', 'nipp', 'jabatan', 'hp', 'email'].map(k => csvCell(r[k])).join(',')).join('\n'));
+  $('#imp').onchange = async e => {
+    const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+    const data = parseCSV(await file.text());
+    if (!data.length) return toast('File kosong / format tidak dikenali', 'bad');
+    if (!await confirmDialog({ title: 'Import data pegawai?', message: `<b>${data.length}</b> baris akan diimpor dari <b>${esc(file.name)}</b>. Pegawai dengan NIPP yang sama akan diperbarui.`, ok: 'Import' })) return;
+    try {
+      const r = await api('importEmployees', { rows: data });
+      openModal({ title: 'Import selesai', icon: r.errors.length ? 'warn' : 'check', tone: r.errors.length ? 'warn' : 'ok', body: `<p>Ditambah: <b>${r.added}</b> · Diperbarui: <b>${r.updated}</b> · Gagal: <b>${r.errors.length}</b></p>${r.errors.length ? `<div class="kv" style="display:block;max-height:200px;overflow:auto;font-size:13px">${r.errors.map(esc).join('<br>')}</div>` : ''}`, actions: [{ label: 'Tutup', cls: 'btn-primary' }] });
+      paneEmployees();
+    } catch (err) { toast(err.message, 'bad'); }
+  };
+}
+function employeeForm(emp, presetUid = '') {
+  const isNew = !emp; emp = emp || { uid: presetUid, nama: '', nipp: '', jabatan: '', hp: '', email: '' };
+  const prevHandler = Reader.handler;
+  openModal({
+    title: isNew ? 'Tambah Pegawai' : 'Ubah Data Pegawai', icon: 'user',
+    body: `<form id="pf" onsubmit="return false">
+      <div class="field"><label>UID Kartu (RFID/NFC)</label><div class="input-group"><input class="input mono" name="uid" id="uidIn" value="${esc(emp.uid)}" required placeholder="Tempel kartu pada reader…" autocomplete="off"><button type="button" class="btn btn-ghost" id="scanUid">${I.nfc} Scan</button></div>
+      <span class="hint" id="uidHint">Klik kolom lalu tempel kartu pada reader USB, atau tekan "Scan" untuk NFC HP.</span></div>
+      <div class="field"><label>Nama lengkap</label><input class="input" name="nama" value="${esc(emp.nama)}" required></div>
+      <div class="grid-2"><div class="field"><label>NIPP / NIK</label><input class="input mono" name="nipp" value="${esc(emp.nipp)}" required></div>
+      <div class="field"><label>Jabatan</label><input class="input" name="jabatan" value="${esc(emp.jabatan)}"></div>
+      <div class="field"><label>Handphone</label><input class="input mono" name="hp" type="tel" value="${esc(emp.hp)}"></div>
+      <div class="field"><label>Email</label><input class="input" name="email" type="email" value="${esc(emp.email)}"></div></div>
+    </form>`,
+    onOpen: ({ el }) => {
+      const u = $('#uidIn', el);
+      u.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('[name=nama]', el).focus(); } });
+      Reader.on(uid => { u.value = uid; feedback(true); $('#uidHint', el).textContent = 'UID terbaca: ' + uid; });
+      $('#scanUid', el).onclick = async () => {
+        if (!Reader.nfcUsable) { u.focus(); u.select(); toast('Tempel kartu pada reader USB/Bluetooth sekarang', '', 3000); return; }
+        try { await Reader.startNFC(); toast('Tempelkan kartu di belakang HP', ''); } catch (e) { toast(e.message, 'bad'); }
+      };
+    },
+    actions: [{ label: 'Batal' }, {
+      label: isNew ? 'Simpan Pegawai' : 'Simpan Perubahan', cls: 'btn-primary', icon: 'check', onClick: async ({ el }) => {
+        const d = formData($('#pf', el));
+        if (!d.uid || !d.nama || !d.nipp) throw new Error('UID kartu, Nama, dan NIPP/NIK wajib diisi');
+        if (d.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) throw new Error('Format email tidak valid');
+        if (!await confirmDialog({ title: isNew ? 'Simpan pegawai baru?' : 'Simpan perubahan data pegawai?', message: `<b>${esc(d.nama)}</b> · NIPP ${esc(d.nipp)}<br><span class="mono">UID ${esc(normUid(d.uid))}</span>` })) return false;
+        await api('saveEmployee', { ...d, id: isNew ? '' : emp.id });
+        toast(isNew ? 'Pegawai ditambahkan' : 'Data pegawai diperbarui', 'ok'); return true;
+      }
+    }]
+  }).then(saved => { Reader.on(prevHandler); if (saved && location.hash.startsWith('#/admin/pegawai')) paneEmployees(); });
+}
+function csvCell(v) { v = String(v ?? ''); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function parseCSV(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const first = text.split(/\r?\n/)[0] || ''; const sep = (first.match(/;/g) || []).length > (first.match(/,/g) || []).length ? ';' : ',';
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true; else if (c === sep) { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += c;
+  }
+  if (cur || row.length) { row.push(cur); rows.push(row); }
+  const head = (rows.shift() || []).map(h => h.trim().toLowerCase().replace(/[^a-z]/g, ''));
+  const alias = { uid: 'uid', uidkartu: 'uid', kartu: 'uid', nama: 'nama', nipp: 'nipp', nik: 'nipp', nippnik: 'nipp', jabatan: 'jabatan', hp: 'hp', handphone: 'hp', nohp: 'hp', email: 'email' };
+  return rows.filter(r => r.some(x => x.trim())).map(r => { const o = {}; head.forEach((h, i) => { if (alias[h]) o[alias[h]] = (r[i] || '').trim(); }); return o; });
+}
+function downloadText(name, text) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* ---------- Pengaturan ---------- */
+function logoSrc() { return (S.settings && S.settings.logo) || DEFAULT_LOGO; }
+async function paneSettings() {
+  let s;
+  try { s = S.settings && S.settings.judul !== undefined ? S.settings : await api('getSettings'); } catch (e) { $('#pane').innerHTML = errorCard(e.message); return; }
+  $('#pane').innerHTML = `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));align-items:start">
+    <div class="card card-pad"><h3 style="margin-bottom:4px">Kop formulir (PDF)</h3><p class="muted" style="margin:0 0 16px;font-size:13px">Mengikuti lembar kertas aslinya.</p>
+      <form id="sf" onsubmit="return false">
+        <div class="field"><label>Judul formulir</label><input class="input" name="judul" value="${esc(s.judul)}"></div>
+        <div class="grid-2"><div class="field"><label>Kode formulir</label><input class="input" name="kodeForm" value="${esc(s.kodeForm)}"></div>
+        <div class="field"><label>No. Terbit</label><input class="input" name="noTerbit" value="${esc(s.noTerbit)}"></div>
+        <div class="field"><label>No. Revisi</label><input class="input" name="noRevisi" value="${esc(s.noRevisi)}"></div></div>
+        <div class="field"><label>Logo</label><div class="row"><img id="lgPrev" src="${esc(s.logo || DEFAULT_LOGO)}" style="height:40px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff" alt="Logo">
+          <label class="btn btn-ghost btn-sm" style="margin:0">${I.upload} Ganti<input type="file" accept="image/png,image/jpeg" id="lgFile" class="sr"></label><button type="button" class="btn btn-ghost btn-sm" id="lgReset">Pakai bawaan</button></div>
+          <input type="hidden" name="logo" value="${esc(s.logo)}"></div>
+        <div class="field"><label>URL verifikasi QR <span class="muted">(opsional)</span></label><input class="input mono" name="verifyUrl" value="${esc(s.verifyUrl || '')}" placeholder="https://presensi.kantor.co.id/"><span class="hint">Alamat halaman ini yang pendek (hosting/short-link). Makin pendek, makin mudah QR dipindai saat dicetak. Kosong = otomatis.</span></div>
+        <label class="switch"><input type="checkbox" name="izinManual" ${s.izinManual === 'true' ? 'checked' : ''}> Izinkan peserta presensi dengan NIPP/NIK bila kartu bermasalah</label>
+        <div style="margin-top:18px"><button type="button" class="btn btn-primary" id="saveS">${I.check} Simpan Pengaturan</button></div>
+      </form></div>
+    <div class="grid">
+      <div class="card card-pad"><h3 style="margin-bottom:12px">Ganti username / password admin</h3>
+        <form id="pwf" onsubmit="return false">
+          <div class="field"><label>Password lama</label><input class="input" type="password" name="oldPassword" autocomplete="current-password"></div>
+          <div class="field"><label>Username baru <span class="muted">(opsional)</span></label><input class="input" name="newUsername" placeholder="${esc(S.user || 'admin')}" autocomplete="username"></div>
+          <div class="field"><label>Password baru (min. 8 karakter)</label><input class="input" type="password" name="newPassword" autocomplete="new-password"></div>
+          <button type="button" class="btn btn-primary" id="savePw">${I.lock} Ganti Password</button></form></div>
+      <div class="card card-pad"><h3 style="margin-bottom:10px">Perangkat & koneksi</h3>
+        <dl class="kv"><dt>Mode data</dt><dd>${MODE === 'gas' ? 'Google Apps Script (langsung)' : MODE === 'remote' ? 'Server Apps Script (API)' : 'DEMO — tersimpan di browser ini saja'}</dd>
+        <dt>NFC HP</dt><dd>${Reader.nfcUsable ? 'Tersedia' : esc(Reader.nfcReason())}</dd><dt>Reader USB/BT</dt><dd>Didukung (mode keyboard / HID)</dd><dt>URL verifikasi</dt><dd class="mono" style="font-size:12px;word-break:break-all">${esc(baseUrl())}</dd></dl>
+        ${MODE === 'demo' ? `<button type="button" class="btn btn-danger-ghost btn-sm" id="resetDemo" style="margin-top:12px">${I.trash} Reset data demo</button>` : ''}</div>
+    </div></div>`;
+  $('#lgFile').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const url = await resizeImage(f, 360, 140);
+      if (url.length > 45000) return toast('Logo terlalu besar, gunakan gambar lebih sederhana', 'bad');
+      $('[name=logo]').value = url; $('#lgPrev').src = url;
+    } catch (err) { toast('Gambar tidak dapat dibaca', 'bad'); }
+  };
+  $('#lgReset').onclick = () => { $('[name=logo]').value = ''; $('#lgPrev').src = DEFAULT_LOGO; };
+  $('#saveS').onclick = async () => {
+    if (!await confirmDialog({ title: 'Simpan pengaturan?', message: 'Kop formulir baru akan dipakai pada semua ekspor PDF.' })) return;
+    await withBusy($('#saveS'), async () => { S.settings = await api('saveSettings', formData($('#sf'))); S.appUrl = S.settings.appUrl || S.appUrl; applyBrand(); toast('Pengaturan disimpan', 'ok'); });
+  };
+  $('#savePw').onclick = async () => {
+    const d = formData($('#pwf'));
+    if (!d.oldPassword || !d.newPassword) return toast('Isi password lama dan baru', 'warn');
+    if (d.newPassword.length < 8) return toast('Password baru minimal 8 karakter', 'warn');
+    if (!await confirmDialog({ title: 'Ganti kredensial admin?', message: 'Anda perlu login ulang setelah ini.', ok: 'Ganti' })) return;
+    await withBusy($('#savePw'), async () => { await api('changePassword', d); toast('Password diganti. Silakan login ulang.', 'ok'); try { await api('logout'); } catch (e) { } setSession(null, null); go('#/login'); });
+  };
+  const rd = $('#resetDemo');
+  if (rd) rd.onclick = async () => { if (!await confirmDialog({ title: 'Reset data demo?', danger: true, ok: 'Reset', message: 'Semua agenda, pegawai, dan kehadiran demo di browser ini dihapus dan diganti data contoh.' })) return; LocalAPI.reset(); setSession(null, null); S.settings = null; await loadSettings(); go('#/'); toast('Data demo direset', 'ok'); };
+}
+function resizeImage(file, maxW, maxH) {
+  return new Promise((ok, ko) => {
+    const img = new Image(); img.onload = () => {
+      const r = Math.min(1, maxW / img.width, maxH / img.height), c = document.createElement('canvas');
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); ok(c.toDataURL('image/png'));
+    }; img.onerror = ko; img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------- Daftar hadir per agenda (admin) ---------- */
+async function viewAdminAttendance(eventId) {
+  app().innerHTML = loadingHTML;
+  let ev, rows;
+  try {
+    ev = (await api('listEvents', { all: true })).find(e => e.id === eventId);
+    if (!ev) { app().innerHTML = `<button class="back" onclick="go('#/admin')">${I.back} Kembali</button><div class="card empty">Agenda tidak ditemukan.</div>`; return; }
+    rows = await api('listAttendance', { eventId });
+  } catch (e) { app().innerHTML = errorCard(e.message); return; }
+  app().innerHTML = `<button class="back" onclick="go('#/admin/agenda')">${I.back} Agenda Rapat</button>
+    <div class="card card-pad" style="margin-bottom:16px;display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+      <div style="flex:1;min-width:240px"><div class="row" style="gap:8px;margin-bottom:6px">${ev.status === 'aktif' ? '<span class="badge ok">Presensi dibuka</span>' : '<span class="badge gray">Presensi ditutup</span>'}<span class="badge" id="cntB">${rows.length} hadir</span></div>
+        <h2>${esc(ev.acara)}</h2><div class="muted">${esc(ev.hari)}, ${fmtTgl(ev.tanggal)}</div></div>
+      <div class="row">
+        <button class="btn btn-ghost" id="kiosk">${I.monitor} Mode Presensi</button>
+        <button class="btn btn-ghost" id="toggle">${ev.status === 'aktif' ? I.lock + ' Tutup Presensi' : I.check + ' Buka Presensi'}</button>
+        <button class="btn btn-ghost" id="prev">${I.eye} Pratinjau</button>
+        <button class="btn btn-accent" id="pdf">${I.pdf} Export PDF A4</button>
+      </div></div>
+    <div class="card"><div class="toolbar" style="justify-content:space-between"><h3>Daftar Hadir</h3><button class="btn btn-primary btn-sm" id="manual">${I.plus} Tambah manual</button></div><div id="att"></div></div>`;
+  const draw = () => {
+    $('#att').innerHTML = attTable(rows, { admin: true });
+    $('#cntB').textContent = rows.length + ' hadir';
+    $$('#att [data-qr]').forEach(b => b.onclick = () => showESign(rows.find(r => r.id === b.dataset.qr), ev));
+    $$('#att [data-del]').forEach(b => b.onclick = async () => {
+      const r = rows.find(x => x.id === b.dataset.del);
+      if (!await confirmDialog({ title: 'Hapus data kehadiran?', danger: true, ok: 'Ya, hapus', message: `Kehadiran <b>${esc(r.nama)}</b> (${fmtJam(r.waktu)} WIB) beserta e-sign-nya akan dihapus. QR yang sudah tercetak menjadi tidak valid.` })) return;
+      try { await api('deleteAttendance', { id: r.id }); toast('Data kehadiran dihapus', 'ok'); rows = await api('listAttendance', { eventId }); draw(); } catch (e) { toast(e.message, 'bad'); }
+    });
+  };
+  draw();
+  $('#kiosk').onclick = () => go('#/hadir/' + encodeURIComponent(eventId));
+  $('#toggle').onclick = async () => {
+    const open = ev.status !== 'aktif';
+    if (!await confirmDialog({ title: open ? 'Buka presensi?' : 'Tutup presensi?', message: open ? 'Agenda akan tampil di halaman peserta dan kartu dapat dipindai.' : 'Peserta tidak dapat lagi melakukan presensi untuk agenda ini.', ok: open ? 'Buka' : 'Tutup' })) return;
+    try { await api('saveEvent', { id: ev.id, tanggal: ev.tanggal, hari: ev.hari, acara: ev.acara, status: open ? 'aktif' : 'selesai' }); toast(open ? 'Presensi dibuka' : 'Presensi ditutup', 'ok'); viewAdminAttendance(eventId); } catch (e) { toast(e.message, 'bad'); }
+  };
+  $('#pdf').onclick = () => withBusy($('#pdf'), () => exportPDF(ev, rows, false));
+  $('#prev').onclick = () => withBusy($('#prev'), () => exportPDF(ev, rows, true));
+  $('#manual').onclick = async () => {
+    let emps; try { emps = await api('listEmployees'); } catch (e) { return toast(e.message, 'bad'); }
+    const taken = new Set(rows.map(r => r.nipp)); const avail = emps.filter(e => !taken.has(e.nipp));
+    if (!avail.length) return toast('Semua pegawai terdaftar sudah hadir', 'warn');
+    openModal({
+      title: 'Tambah kehadiran manual', icon: 'user',
+      body: `<div class="field"><label>Pegawai</label><select class="input" id="mEmp">${avail.map(e => `<option value="${esc(e.id)}">${esc(e.nama)} — ${esc(e.nipp)}</option>`).join('')}</select><span class="hint">Untuk peserta yang lupa membawa kartu. Tercatat sebagai "Manual (admin)".</span></div>`,
+      actions: [{ label: 'Batal' }, {
+        label: 'Tambahkan', cls: 'btn-primary', icon: 'check', onClick: async ({ el }) => {
+          const id = $('#mEmp', el).value, e = avail.find(x => x.id === id);
+          if (!await confirmDialog({ title: 'Tambahkan kehadiran?', message: `<b>${esc(e.nama)}</b> akan dicatat hadir dan dibuatkan e-sign.` })) return false;
+          await api('checkInManual', { eventId, employeeId: id }); toast('Kehadiran ditambahkan', 'ok');
+          rows = await api('listAttendance', { eventId }); draw(); return true;
+        }
+      }]
+    });
+  };
+}
+
+/* =====================================================================
+ *  EXPORT PDF A4 — meniru FORM DAFTAR HADIR RAPAT INTERNAL
+ * ===================================================================== */
+function loadImg(src) { return new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; }); }
+async function exportPDF(ev, rows, preview) {
+  if (!window.jspdf || !window.jspdf.jsPDF) throw new Error('Pustaka PDF gagal dimuat. Periksa koneksi internet lalu muat ulang.');
+  if (typeof qrcode === 'undefined') throw new Error('Pustaka QR gagal dimuat. Periksa koneksi internet lalu muat ulang.');
+  const s = S.settings || {};
+  const doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, M = 12, CW = W - 2 * M;
+  const logo = await loadImg(logoSrc());
+  const logoFmt = /^data:image\/jpe?g/i.test(logoSrc()) ? 'JPEG' : 'PNG';
+
+  const header = () => {
+    doc.setDrawColor(0); doc.setLineWidth(0.3);
+    doc.rect(M, 10, CW, 22);
+    doc.line(M + 50, 10, M + 50, 32); doc.line(W - M - 46, 10, W - M - 46, 32);
+    if (logo) { let h = 14, w = h * logo.width / logo.height; if (w > 44) { w = 44; h = w * logo.height / logo.width; } doc.addImage(logo, logoFmt, M + (50 - w) / 2, 10 + (22 - h) / 2, w, h); }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(0);
+    const midX = M + 50 + (CW - 96) / 2;
+    const tl = doc.splitTextToSize(s.judul || 'FORM DAFTAR HADIR RAPAT INTERNAL', CW - 102);
+    doc.text(tl, midX, tl.length > 1 ? 17 : 19.5, { align: 'center' });
+    doc.setFontSize(10.5); doc.text(s.kodeForm || '', midX, 27.5, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+    const rx = W - M - 43;
+    doc.text('NO. TERBIT', rx, 18.5); doc.text(': ' + (s.noTerbit || ''), rx + 21, 18.5);
+    doc.text('NO. REVISI', rx, 25.5); doc.text(': ' + (s.noRevisi || ''), rx + 21, 25.5);
+    doc.setFontSize(10);
+    let y = 40;
+    [['TANGGAL', fmtTgl(ev.tanggal)], ['HARI', ev.hari], ['ACARA', ev.acara]].forEach(([k, v]) => {
+      doc.setFont('helvetica', 'bold'); doc.text(k, M, y); doc.text(':', M + 20, y);
+      doc.setFont('helvetica', 'normal');
+      const lines = doc.splitTextToSize(String(v || ''), CW - 24);
+      doc.text(lines.slice(0, 2), M + 23, y);
+      y += 5.5 * Math.min(lines.length, 2) + 0.5;
+    });
+    return y;
+  };
+  const acaraLines = Math.min(doc.setFontSize(10).splitTextToSize(String(ev.acara || ''), CW - 24).length, 2);
+  const TOP = 40 + 6 * 2 + 5.5 * acaraLines + 3;
+
+  const body = rows.map(r => [r.no, r.nama, r.nipp, r.jabatan, r.hp, r.email, '']);
+  doc.autoTable({
+    head: [['NO', 'NAMA', 'NIPP / NIK', 'JABATAN', 'HANDPHONE', 'EMAIL', 'TANDA TANGAN']],
+    body: body.length ? body : [['', 'Belum ada peserta', '', '', '', '', '']],
+    startY: TOP, margin: { top: TOP, left: M, right: M, bottom: 16 },
+    theme: 'grid', rowPageBreak: 'avoid',
+    styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.6, lineColor: [0, 0, 0], lineWidth: 0.2, textColor: 0, valign: 'middle', minCellHeight: 17, overflow: 'linebreak' },
+    headStyles: { fillColor: [235, 238, 247], textColor: 0, fontStyle: 'bold', halign: 'center', minCellHeight: 8, fontSize: 8 },
+    columnStyles: { 0: { cellWidth: 9, halign: 'center' }, 1: { cellWidth: 37 }, 2: { cellWidth: 21, halign: 'center' }, 3: { cellWidth: 29 }, 4: { cellWidth: 24, halign: 'center' }, 5: { cellWidth: 34, fontSize: 7 }, 6: { cellWidth: 32 } },
+    didDrawPage: () => header(),
+    didDrawCell: d => {
+      if (d.section !== 'body' || d.column.index !== 6 || !rows[d.row.index]) return;
+      const r = rows[d.row.index], q = makeQR(verifyUrl(r)), n = q.getModuleCount();
+      const size = Math.min(d.cell.height - 1.6, 15.4), ms = size / n, x0 = d.cell.x + 1.2, y0 = d.cell.y + (d.cell.height - size) / 2;
+      doc.setFillColor(0, 0, 0);
+      for (let rr = 0; rr < n; rr++) for (let cc = 0; cc < n; cc++) if (q.isDark(rr, cc)) doc.rect(x0 + cc * ms, y0 + rr * ms, ms + 0.02, ms + 0.02, 'F');
+      doc.setFontSize(5.8); doc.setTextColor(60);
+      doc.text(['E-SIGN', fmtJam(r.waktu), 'WIB'], x0 + size + 1.2, d.cell.y + d.cell.height / 2 - 2);
+      doc.setTextColor(0); doc.setFontSize(8);
+    }
+  });
+
+  const pages = doc.internal.getNumberOfPages();
+  const printed = `${fmtTgl(todayYmd())} ${new Date().toTimeString().substr(0, 5)}`;
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(6.8); doc.setTextColor(90); doc.setFont('helvetica', 'normal');
+    doc.text('Dokumen dibuat secara elektronik oleh Sistem Presensi Rapat Digital (NFC/RFID). Tanda tangan berupa QR e-sign dapat diverifikasi dengan memindai kode.', M, 288);
+    doc.text(`Dicetak ${printed}  ·  Total hadir: ${rows.length}  ·  Halaman ${i} dari ${pages}`, W - M, 292, { align: 'right' });
+    doc.setTextColor(0);
+  }
+  const fname = `Daftar_Hadir_${ev.tanggal}_${String(ev.acara).replace(/[^\w]+/g, '_').substr(0, 40)}.pdf`;
+  if (preview) {
+    const w = window.open(doc.output('bloburl'), '_blank');
+    if (!w) { doc.save(fname); toast('Pop-up diblokir, PDF diunduh', 'warn'); }
+  } else { doc.save(fname); toast('PDF diunduh: ' + fname, 'ok'); }
+  return doc;
+}
+
+/* =====================================================================
+ *  VIEW: VERIFIKASI E-SIGN (hasil scan QR)
+ * ===================================================================== */
+async function viewVerify(id, sig) {
+  app().innerHTML = `<div class="verify"><div class="card">${loadingHTML}</div></div>`;
+  let r;
+  try { r = await api('verify', { id, s: sig }); } catch (e) { r = { valid: false, reason: e.message }; }
+  $('.verify').innerHTML = `<div class="card"><div class="vstat">
+      <div class="vi" style="background:${r.valid ? 'var(--okbg)' : 'var(--badbg)'};color:${r.valid ? 'var(--ok)' : 'var(--bad)'}">${r.valid ? I.shield : I.x}</div>
+      <h2>${r.valid ? 'Tanda tangan elektronik SAH' : 'Tanda tangan TIDAK valid'}</h2>
+      <div class="muted">${r.valid ? 'Data presensi tercatat dan cocok dengan server.' : esc(r.reason || '')}</div></div>
+    ${r.nama ? `<div class="card-pad"><dl class="kv"><dt>Nama</dt><dd>${esc(r.nama)}</dd><dt>NIPP/NIK</dt><dd class="mono">${esc(r.nipp)}</dd><dt>Jabatan</dt><dd>${esc(r.jabatan)}</dd><dt>Acara</dt><dd>${esc(r.acara)}</dd><dt>Tanggal</dt><dd>${esc(r.hari)}, ${fmtTgl(r.tanggal)}</dd><dt>Waktu hadir</dt><dd>${fmtJam(r.waktu)} WIB</dd><dt>Kode</dt><dd class="mono">${esc(id)}</dd></dl></div>` : '<div style="height:20px"></div>'}
+    <div class="card-pad" style="padding-top:0;text-align:center"><button class="btn btn-ghost" onclick="go('#/')">${I.back} Ke beranda</button></div></div>`;
+}
+
+/* =====================================================================
+ *  INIT
+ * ===================================================================== */
+function applyBrand() {
+  $('#brandLogo').src = logoSrc();
+  const map = { gas: ['ok', 'Online'], remote: ['ok', 'Online'], demo: ['warn', 'Mode Demo'] };
+  const pill = $('#modePill'); pill.className = 'pill ' + map[MODE][0]; pill.lastElementChild.textContent = map[MODE][1];
+  $('#foot').textContent = `${S.settings && S.settings.kodeForm ? S.settings.kodeForm + ' · ' : ''}Presensi Rapat Digital — NFC · RFID · QR E-Sign`;
+}
+async function loadSettings() {
+  try { S.settings = await api('getSettings'); S.appUrl = S.settings.appUrl || ''; }
+  catch (e) { S.settings = S.settings || {}; toast(e.message, 'bad', 6000); }
+  applyBrand();
+}
+function getQueryParams() {
+  return new Promise(res => {
+    if (MODE === 'gas' && google.script.url) google.script.url.getLocation(l => res(l.parameter || {}));
+    else res(Object.fromEntries(new URLSearchParams(location.search)));
+  });
+}
+(async function init() {
+  Reader.initKeyboardWedge();
+  applyBrand();
+  await loadSettings();
+  const q = await getQueryParams();
+  if (q.v && q.v.includes('.')) { const [vid, vs] = q.v.split('.'); location.hash = `#/verify/${encodeURIComponent(vid)}/${encodeURIComponent(vs)}`; }
+  else if (q.verify) location.hash = `#/verify/${encodeURIComponent(q.verify)}/${encodeURIComponent(q.s || '')}`;
+  window.addEventListener('hashchange', route);
+  route();
+  // Catatan: Chrome otomatis menjeda NFC saat layar mati/halaman tersembunyi dan melanjutkannya kembali.
+})();
+</script>
+</body>
+</html>
